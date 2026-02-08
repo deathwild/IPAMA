@@ -328,9 +328,10 @@
   }
 
   async function apiRegister(payload) {
+    // POST-only + text/plain (hindari preflight)
     const res = await fetch(API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(payload)
     });
     const json = await res.json();
@@ -339,10 +340,10 @@
   }
 
   async function apiUpdate(id, payload) {
-    const body = { id, password: adminPassword, ...payload };
+    const body = { action: 'update', id, password: adminPassword, ...payload };
     const res = await fetch(API_URL, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(body)
     });
     const json = await res.json();
@@ -351,10 +352,12 @@
   }
 
   async function apiDelete(id) {
-    const url = new URL(API_URL);
-    url.searchParams.set('id', id);
-    url.searchParams.set('password', adminPassword);
-    const res = await fetch(url.toString(), { method: 'DELETE' });
+    const body = { action: 'delete', id, password: adminPassword };
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(body)
+    });
     const json = await res.json();
     if (!json.ok) throw new Error(json.error || 'Gagal hapus');
     return json;
