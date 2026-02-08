@@ -44,7 +44,7 @@
   <header>
     <div class="wrap">
       <h1>IPAMA — Daftar & List Anggota</h1>
-      <div class="sub">GitHub Pages + Google Sheets (JSONP anti CORS)</div>
+      <div class="sub">GitHub Pages + Google Sheets (anti CORS)</div>
     </div>
   </header>
 
@@ -100,6 +100,19 @@
 
           <div id="regStatus" class="status"></div>
         </form>
+
+        <div id="apiBox" class="card" style="margin-top:14px; display:none;">
+          <h2>Set API URL (1x)</h2>
+          <div class="muted" style="margin-bottom:10px;">JSONP tidak bisa dimuat dari URL saat ini. Paste URL final yang **script.googleusercontent.com** (hasil redirect) lalu simpan.</div>
+          <div class="grid">
+            <div>
+              <label>API_URL</label>
+              <input id="apiInput" placeholder="https://script.googleusercontent.com/.../exec" />
+            </div>
+            <button id="apiSave" class="primary" type="button">Simpan API URL</button>
+            <div class="muted">Setelah disimpan, refresh halaman.</div>
+          </div>
+        </div>
       </section>
 
       <section class="card">
@@ -136,7 +149,11 @@
   </div>
 
 <script>
-  const API_URL = 'https://script.google.com/macros/s/AKfycbzCWZp4Q0pZf1w7KEyAMI2Mv09XIClxcvYHpJR7_gWMYrx2V1YgcjiJoBsdPsKyp7st/exec';
+  // Default URL (bisa gagal untuk JSONP di beberapa browser). Kalau gagal, web akan minta URL final googleusercontent.
+  const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbzCWZp4Q0pZf1w7KEyAMI2Mv09XIClxcvYHpJR7_gWMYrx2V1YgcjiJoBsdPsKyp7st/exec';
+
+  const API_STORAGE_KEY = 'ipama_api_url_v1';
+  let API_URL = localStorage.getItem(API_STORAGE_KEY) || DEFAULT_API_URL;
 
   let adminPassword = '';
   let isAdmin = false;
@@ -155,6 +172,10 @@
   const tbody = document.getElementById('tbody');
   const count = document.getElementById('count');
 
+  const apiBox = document.getElementById('apiBox');
+  const apiInput = document.getElementById('apiInput');
+  const apiSave = document.getElementById('apiSave');
+
   const modal = document.getElementById('modal');
   const modalTitle = document.getElementById('modalTitle');
   const modalBody = document.getElementById('modalBody');
@@ -170,11 +191,12 @@
     return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   }
 
-  // ===== JSONP core =====
+  // ===== JSONP (dengan cache-buster + error detail) =====
   function jsonp(params){
     return new Promise((resolve, reject) => {
       const cb = '__ipama_cb_' + Math.random().toString(36).slice(2);
       params.callback = cb;
+      params._ts = Date.now();
 
       const url = new URL(API_URL);
       Object.keys(params).forEach(k => {
@@ -182,10 +204,12 @@
       });
 
       const script = document.createElement('script');
+      script.async = true;
+
       const timeout = setTimeout(() => {
         cleanup();
-        reject(new Error('Timeout'));
-      }, 15000);
+        reject(new Error('Timeout: callback tidak terpanggil. URL: ' + url.toString()));
+      }, 20000);
 
       function cleanup(){
         clearTimeout(timeout);
@@ -200,13 +224,28 @@
 
       script.onerror = () => {
         cleanup();
-        reject(new Error('Gagal memuat JSONP'));
+        reject(new Error('Gagal memuat JSONP. URL: ' + url.toString()));
       };
 
       script.src = url.toString();
       document.body.appendChild(script);
     });
   }
+
+  function showApiBox(urlTried){
+    apiBox.style.display = 'block';
+    apiInput.value = localStorage.getItem(API_STORAGE_KEY) || '';
+    setStatus(regStatus, 'Koneksi API gagal. Silakan set API URL final (script.googleusercontent.com) lalu refresh.', false);
+    setStatus(listStatus, 'JSONP gagal dimuat dari: ' + urlTried, false);
+  }
+
+  apiSave.onclick = () => {
+    const v = apiInput.value.trim();
+    if (!v) return;
+    localStorage.setItem(API_STORAGE_KEY, v);
+    API_URL = v;
+    location.reload();
+  };
 
   function updateAdminUI(){
     if (isAdmin){
@@ -303,7 +342,7 @@
       render(filtered());
       setStatus(listStatus,'',true);
     }catch(e){
-      setStatus(listStatus,'Error: '+e.message,false);
+      showApiBox(API_URL);
     }
   }
 
@@ -346,7 +385,7 @@
       }catch(e){
         adminPassword='';
         updateAdminUI();
-        setStatus(modalStatus,'Error: '+e.message,false);
+        setStatus(modalStatus,'Error koneksi API. Set API URL dulu.',false);
       }
     };
   }
@@ -402,14 +441,14 @@
         await refresh();
         closeModal();
       }catch(e){
-        setStatus(modalStatus,'Error: '+e.message,false);
+        setStatus(modalStatus,'Error koneksi API. Pastikan API_URL sudah benar.',false);
       }
     };
   }
 
   // Export CSV
   function toCSV(rows, cols){
-    const esc=(v)=>{const s=String(v??''); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
+    const esc=(v)=>{const s=String(v??''); return /[\",\n]/.test(s)?'"'+s.replace(/\"/g,'""')+'"':s};
     return cols.join(',')+'\n'+rows.map(r=>cols.map(c=>esc(r[c])).join(',')).join('\n');
   }
   function download(name, content, mime){
@@ -419,7 +458,6 @@
     a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
   }
 
-  // Events
   document.getElementById('btnRefresh').onclick = refresh;
   document.getElementById('btnAdmin').onclick = showAdminLogin;
   document.getElementById('btnLogout').onclick = ()=>{adminPassword='';isAdmin=false;updateAdminUI();refresh();};
@@ -440,7 +478,7 @@
       setStatus(regStatus,'Berhasil daftar!',true);
       await refresh();
     }catch(err){
-      setStatus(regStatus,'Error: '+err.message,false);
+      showApiBox(API_URL);
     }
   });
 
@@ -460,7 +498,7 @@
         await refresh();
         setStatus(listStatus,'Terhapus.',true);
       }catch(err){
-        setStatus(listStatus,'Error: '+err.message,false);
+        showApiBox(API_URL);
       }
     }
   });
@@ -474,7 +512,6 @@
     download(`ipama-anggota-${stamp}.csv`, csv, 'text/csv');
   });
 
-  // init
   updateAdminUI();
   refresh();
 </script>
