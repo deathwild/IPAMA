@@ -1,744 +1,606 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PENDATAAN IPAMA</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IPAMA - Daftar & List Anggota</title>
   <style>
     :root {
-      --color-background: rgba(252, 252, 249, 1);
-      --color-surface: rgba(255, 255, 253, 1);
-      --color-text: rgba(19, 52, 59, 1);
-      --color-text-secondary: rgba(98, 108, 113, 1);
-      --color-primary: rgba(33, 128, 141, 1);
-      --color-primary-hover: rgba(29, 116, 128, 1);
-      --color-border: rgba(94, 82, 64, 0.2);
-      --color-card-border: rgba(94, 82, 64, 0.12);
-      --color-success: rgba(33, 128, 141, 1);
-      --color-error: rgba(192, 21, 47, 1);
-      --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --radius-base: 8px;
-      --radius-lg: 12px;
-      --space-8: 8px;
-      --space-12: 12px;
-      --space-16: 16px;
-      --space-24: 24px;
-      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
-      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+      --bg: #0b1020;
+      --card: #121a33;
+      --text: #e9edff;
+      --muted: #b7c0ff;
+      --accent: #6ea8ff;
+      --danger: #ff6b6b;
+      --ok: #2ecc71;
+      --border: rgba(255,255,255,.12);
     }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --color-background: rgba(31, 33, 33, 1);
-        --color-surface: rgba(38, 40, 40, 1);
-        --color-text: rgba(245, 245, 245, 1);
-        --color-text-secondary: rgba(167, 169, 169, 0.7);
-        --color-primary: rgba(50, 184, 198, 1);
-        --color-primary-hover: rgba(45, 166, 178, 1);
-        --color-border: rgba(119, 124, 124, 0.3);
-        --color-card-border: rgba(119, 124, 124, 0.2);
-      }
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     body {
-      font-family: var(--font-family-base);
-      background: var(--color-background);
-      color: var(--color-text);
-      line-height: 1.6;
-      padding: var(--space-24);
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(1200px 600px at 10% 0%, #17204a 0%, var(--bg) 55%);
+      color: var(--text);
     }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
+    header {
+      padding: 20px 16px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(10px);
+      background: rgba(11,16,32,.75);
+      z-index: 10;
     }
-
-    h1,
-    h2 {
-      margin-bottom: var(--space-16);
-      color: var(--color-text);
+    .wrap { max-width: 1100px; margin: 0 auto; }
+    .row { display: grid; gap: 16px; }
+    @media (min-width: 960px) {
+      .row { grid-template-columns: 1.2fr 1.8fr; }
     }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: var(--space-24);
-      flex-wrap: wrap;
-      gap: var(--space-16);
-    }
-
-    .btn {
-      padding: var(--space-8) var(--space-16);
-      border: none;
-      border-radius: var(--radius-base);
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      transition: all 0.2s;
-    }
-
-    .btn-primary {
-      background: var(--color-primary);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: var(--color-primary-hover);
-    }
-
-    .btn-secondary {
-      background: transparent;
-      border: 1px solid var(--color-border);
-      color: var(--color-text);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(33, 128, 141, 0.1);
-    }
-
-    .btn-danger {
-      background: var(--color-error);
-      color: white;
-    }
-
-    .btn-danger:hover {
-      background: rgba(192, 21, 47, 0.9);
-    }
-
+    h1 { font-size: 18px; margin: 0; letter-spacing: .4px; }
+    .sub { color: var(--muted); font-size: 12px; margin-top: 6px; }
+    main { padding: 18px 16px 40px; }
     .card {
-      background: var(--color-surface);
-      border: 1px solid var(--color-card-border);
-      border-radius: var(--radius-lg);
-      padding: var(--space-24);
-      box-shadow: var(--shadow-sm);
-      margin-bottom: var(--space-24);
+      background: rgba(18,26,51,.78);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.28);
     }
-
-    .form-group {
-      margin-bottom: var(--space-16);
+    .card h2 { margin: 0 0 12px; font-size: 14px; color: #d8e2ff; }
+    .grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr;
     }
-
-    label {
-      display: block;
-      margin-bottom: var(--space-8);
-      font-weight: 500;
-      font-size: 14px;
-      color: var(--color-text);
+    @media (min-width: 560px) {
+      .grid.two { grid-template-columns: 1fr 1fr; }
     }
-
-    input,
-    textarea,
-    select {
+    label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 6px; }
+    input, textarea, select {
       width: 100%;
-      padding: var(--space-8) var(--space-12);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-base);
-      font-size: 14px;
-      background: var(--color-surface);
-      color: var(--color-text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      outline: none;
     }
-
-    input:focus,
-    textarea:focus,
-    select:focus {
-      outline: 2px solid var(--color-primary);
-      border-color: var(--color-primary);
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-
-    .table-container {
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-
-    th,
-    td {
-      padding: var(--space-12);
-      text-align: left;
-      border-bottom: 1px solid var(--color-border);
-    }
-
-    th {
-      background: rgba(33, 128, 141, 0.08);
+    textarea { min-height: 86px; resize: vertical; }
+    button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor: pointer;
       font-weight: 600;
-      color: var(--color-text);
     }
+    button.primary { border-color: rgba(110,168,255,.6); background: rgba(110,168,255,.18); }
+    button.danger { border-color: rgba(255,107,107,.55); background: rgba(255,107,107,.12); }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+    .pill {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .pill b { color: var(--text); font-weight: 700; }
 
-    tr:hover {
-      background: rgba(33, 128, 141, 0.05);
-    }
+    table { width: 100%; border-collapse: collapse; overflow: hidden; border-radius: 12px; }
+    th, td { padding: 10px; border-bottom: 1px solid var(--border); vertical-align: top; font-size: 13px; }
+    th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 700; }
+    tr:hover td { background: rgba(255,255,255,.03); }
 
-    .actions {
-      display: flex;
-      gap: var(--space-8);
-    }
-
-    .hidden {
-      display: none;
-    }
+    .muted { color: var(--muted); }
+    .status { font-size: 12px; margin-top: 10px; }
+    .status.ok { color: var(--ok); }
+    .status.err { color: var(--danger); }
 
     .modal {
-      display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
+      inset: 0;
+      display: none;
       align-items: center;
       justify-content: center;
+      padding: 18px;
+      background: rgba(0,0,0,.55);
+      z-index: 20;
     }
+    .modal.on { display: flex; }
+    .modal .box { width: min(560px, 100%); }
 
-    .modal.active {
-      display: flex;
-    }
-
-    .modal-content {
-      background: var(--color-surface);
-      padding: var(--space-24);
-      border-radius: var(--radius-lg);
-      max-width: 500px;
-      width: 90%;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: var(--space-16);
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      color: var(--color-text-secondary);
-    }
-
-    .alert {
-      padding: var(--space-12);
-      border-radius: var(--radius-base);
-      margin-bottom: var(--space-16);
-    }
-
-    .alert-success {
-      background: rgba(33, 128, 141, 0.15);
-      color: var(--color-success);
-      border: 1px solid rgba(33, 128, 141, 0.25);
-    }
-
-    .alert-error {
-      background: rgba(192, 21, 47, 0.15);
-      color: var(--color-error);
-      border: 1px solid rgba(192, 21, 47, 0.25);
-    }
-
-    .admin-only {
-      display: none;
-    }
-
-    .admin-view .admin-only {
-      display: table-cell;
-    }
-
-    .btn-group {
-      display: flex;
-      gap: var(--space-8);
-      flex-wrap: wrap;
-    }
-
-    @media (max-width: 768px) {
-      body {
-        padding: var(--space-16);
-      }
-
-      .header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      table {
-        font-size: 12px;
-      }
-
-      th,
-      td {
-        padding: var(--space-8);
-      }
-    }
+    .small { font-size: 12px; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <div>
-        <h1>ANGGOTA IPAMA</h1>
-        <p id="userStatus" style="color: var(--color-text-secondary); font-size: 14px;">Mode: Pengunjung</p>
-      </div>
-      <div class="btn-group">
-        <button id="loginBtn" class="btn btn-secondary">Login Admin</button>
-        <button id="logoutBtn" class="btn btn-secondary hidden">Logout</button>
-        <button id="addMemberBtn" class="btn btn-primary">Tambah Anggota</button>
-        <button id="exportBtn" class="btn btn-secondary admin-only">Export Data</button>
-      </div>
+  <header>
+    <div class="wrap">
+      <h1>IPAMA — Daftar & List Anggota</h1>
+      <div class="sub">Form pendaftaran + daftar anggota (sinkron ke Google Spreadsheet)</div>
     </div>
+  </header>
 
-    <div id="alertContainer"></div>
+  <main>
+    <div class="wrap row">
 
-    <div class="card">
-      <h2>Daftar Anggota</h2>
-      <div class="table-container">
-        <table id="memberTable">
-          <thead>
-            <tr>
-              <th>Nama</th>
-              <th class="admin-only">No WhatsApp</th>
-              <th>Prodi</th>
-              <th>Kelas</th>
-              <th class="admin-only">Alamat</th>
-              <th class="admin-only">Alasan Masuk</th>
-              <th class="admin-only">Aksi</th>
-            </tr>
-          </thead>
-          <tbody id="memberTableBody"></tbody>
-        </table>
+      <!-- Form Pendaftaran -->
+      <section class="card">
+        <div class="toolbar">
+          <h2>Form Pendaftaran Anggota</h2>
+          <span id="adminBadge" class="pill">Mode: <b>Publik</b></span>
+        </div>
+
+        <form id="regForm" class="grid" autocomplete="off">
+          <div>
+            <label>Nama</label>
+            <input name="nama" required placeholder="Nama lengkap" />
+          </div>
+
+          <div class="grid two">
+            <div>
+              <label>No WhatsApp (hanya admin yang bisa lihat)</label>
+              <input name="no_wa" inputmode="tel" placeholder="08xxxxxxxxxx" />
+            </div>
+            <div>
+              <label>Prodi</label>
+              <input name="prodi" required placeholder="Contoh: Teknik Informatika" />
+            </div>
+          </div>
+
+          <div class="grid two">
+            <div>
+              <label>Kelas</label>
+              <input name="kelas" required placeholder="Contoh: TI-3A" />
+            </div>
+            <div>
+              <label>Alamat (hanya admin yang bisa lihat)</label>
+              <input name="alamat" placeholder="Alamat" />
+            </div>
+          </div>
+
+          <div>
+            <label>Alasan ikut IPAMA (hanya admin yang bisa lihat)</label>
+            <textarea name="alasan" placeholder="Tulis alasan singkat..."></textarea>
+          </div>
+
+          <div class="toolbar">
+            <button class="primary" type="submit" id="btnSubmit">Daftar</button>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button type="button" id="btnRefresh">Refresh List</button>
+              <button type="button" id="btnAdmin">Login Admin</button>
+              <button type="button" id="btnLogout" style="display:none;">Logout</button>
+            </div>
+          </div>
+
+          <div id="regStatus" class="status"></div>
+        </form>
+
+        <div class="small muted" style="margin-top:10px;">
+          Tanggal daftar otomatis tercatat saat kamu submit.
+        </div>
+      </section>
+
+      <!-- List Anggota -->
+      <section class="card">
+        <div class="toolbar" style="margin-bottom:10px;">
+          <h2>List Anggota</h2>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <input id="search" placeholder="Cari nama/prodi/kelas..." style="min-width: 240px;" />
+            <button id="btnExport" class="primary" style="display:none;">Export CSV (Admin)</button>
+          </div>
+        </div>
+
+        <div class="muted small" id="count"></div>
+        <div style="overflow:auto; border:1px solid var(--border); border-radius:12px; margin-top:10px;">
+          <table>
+            <thead>
+              <tr id="thead"></tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+
+        <div id="listStatus" class="status"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Modal Admin Login / Edit -->
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="box card">
+      <div class="toolbar">
+        <h2 id="modalTitle">Admin</h2>
+        <button id="modalClose">Tutup</button>
       </div>
+      <div id="modalBody"></div>
+      <div id="modalStatus" class="status"></div>
     </div>
   </div>
 
-  <!-- Modal Login -->
-  <div id="loginModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Login Admin</h2>
-        <button class="close-btn" onclick="closeLoginModal()">&times;</button>
-      </div>
-      <form id="loginForm">
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" required />
-        </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
-      </form>
-    </div>
-  </div>
+<script>
+  // ====== CONFIG ======
+  const API_URL = 'https://script.google.com/macros/s/AKfycbyAW41FmYHCKbejUj3D1KBzV6xnYkBgcc5ohfDIY903wuDwabwbTG1ik-5W7Q-aUVjJ/exec';
 
-  <!-- Modal Tambah/Edit Anggota -->
-  <div id="memberModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 id="modalTitle">Tambah Anggota Baru</h2>
-        <button class="close-btn" onclick="closeMemberModal()">&times;</button>
-      </div>
-      <form id="memberForm">
-        <input type="hidden" id="editIndex" />
-        <div class="form-group">
-          <label for="nama">Nama Lengkap *</label>
-          <input type="text" id="nama" required />
-        </div>
-        <div class="form-group">
-          <label for="noWa">Nomor WhatsApp *</label>
-          <input type="tel" id="noWa" placeholder="08XXXXXXXXXX" required />
-        </div>
-        <div class="form-group">
-          <label for="prodi">Program Studi *</label>
-          <input type="text" id="prodi" required />
-        </div>
-        <div class="form-group">
-          <label for="kelas">Kelas *</label>
-          <input type="text" id="kelas" required />
-        </div>
-        <div class="form-group">
-          <label for="alamat">Alamat *</label>
-          <textarea id="alamat" required></textarea>
-        </div>
-        <div class="form-group">
-          <label for="alasan">Alasan *</label>
-          <textarea id="alasan" required></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Simpan</button>
-      </form>
-    </div>
-  </div>
+  // ====== STATE ======
+  let adminPassword = ''; // disimpan lokal (session) untuk akses admin
+  let isAdmin = false;
+  let members = [];
 
-  <script>
-    // =============================
-    // MINIMAL CHANGES FOR SHEETS SYNC
-    // - Load data from spreadsheet on page load (GET)
-    // - Sync add/edit/delete to spreadsheet (POST)
-    // - Keep UI & structure the same
-    // =============================
+  // ====== ELEMENTS ======
+  const regForm = document.getElementById('regForm');
+  const regStatus = document.getElementById('regStatus');
+  const listStatus = document.getElementById('listStatus');
+  const btnRefresh = document.getElementById('btnRefresh');
+  const btnAdmin = document.getElementById('btnAdmin');
+  const btnLogout = document.getElementById('btnLogout');
+  const adminBadge = document.getElementById('adminBadge');
+  const btnExport = document.getElementById('btnExport');
+  const search = document.getElementById('search');
+  const thead = document.getElementById('thead');
+  const tbody = document.getElementById('tbody');
+  const count = document.getElementById('count');
 
-    // IMPORTANT:
-    // 1) Ganti URL ini dengan URL Web App Apps Script Anda
-    // 2) Pastikan Apps Script doGet/doPost mengembalikan JSON
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyvZuRlJFKnkjEvpsv5tIkAjWG0fiya8TC5kTBMIa3op5MNnzC4ov4b8wyMcjMzg8OWyw/exec";
+  const modal = document.getElementById('modal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalBody = document.getElementById('modalBody');
+  const modalStatus = document.getElementById('modalStatus');
+  const modalClose = document.getElementById('modalClose');
 
-    // Data storage (fallback kalau spreadsheet belum dihubungkan)
-    let members = [
-      {
-        nama: "Ahmad Fauzi",
-        noWa: "081234567890",
-        prodi: "Teknik Informatika",
-        kelas: "TI-3A",
-        alamat: "Jl. Merdeka No. 123, Jakarta",
-        alasan: "Ingin mengembangkan skill organisasi dan networking",
-      },
-      {
-        nama: "Siti Nurhaliza",
-        noWa: "082345678901",
-        prodi: "Sistem Informasi",
-        kelas: "SI-2B",
-        alamat: "Jl. Sudirman No. 45, Bandung",
-        alasan: "Tertarik dengan kegiatan sosial dan pengembangan diri",
-      },
+  // ====== HELPERS ======
+  function setStatus(el, msg, ok=true) {
+    el.textContent = msg || '';
+    el.className = 'status ' + (msg ? (ok ? 'ok' : 'err') : '');
+  }
+
+  function openModal(title, html) {
+    modalTitle.textContent = title;
+    modalBody.innerHTML = html;
+    modalStatus.textContent = '';
+    modalStatus.className = 'status';
+    modal.classList.add('on');
+    modal.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeModal() {
+    modal.classList.remove('on');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  function toCSV(rows, columns) {
+    const esc = (v) => {
+      const s = String(v ?? '');
+      if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+      return s;
+    };
+    const head = columns.map(esc).join(',');
+    const body = rows.map(r => columns.map(c => esc(r[c])).join(',')).join('\n');
+    return head + '\n' + body;
+  }
+
+  function download(filename, content, mime='text/plain') {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function updateAdminUI() {
+    if (isAdmin) {
+      adminBadge.innerHTML = 'Mode: <b>Admin</b>';
+      btnAdmin.style.display = 'none';
+      btnLogout.style.display = 'inline-block';
+      btnExport.style.display = 'inline-block';
+    } else {
+      adminBadge.innerHTML = 'Mode: <b>Publik</b>';
+      btnAdmin.style.display = 'inline-block';
+      btnLogout.style.display = 'none';
+      btnExport.style.display = 'none';
+    }
+  }
+
+  // ====== API ======
+  async function apiGetMembers() {
+    const url = new URL(API_URL);
+    if (adminPassword) url.searchParams.set('password', adminPassword);
+
+    const res = await fetch(url.toString(), { method: 'GET' });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error || 'Gagal mengambil data');
+    isAdmin = !!json.isAdmin;
+    updateAdminUI();
+    return json.data || [];
+  }
+
+  async function apiRegister(payload) {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error || 'Gagal daftar');
+    return json;
+  }
+
+  async function apiUpdate(id, payload) {
+    const body = { id, password: adminPassword, ...payload };
+    const res = await fetch(API_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error || 'Gagal update');
+    return json;
+  }
+
+  async function apiDelete(id) {
+    const url = new URL(API_URL);
+    url.searchParams.set('id', id);
+    url.searchParams.set('password', adminPassword);
+    const res = await fetch(url.toString(), { method: 'DELETE' });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error || 'Gagal hapus');
+    return json;
+  }
+
+  // ====== RENDER ======
+  function renderTable(rows) {
+    // Kolom tampil
+    const publicCols = [
+      { key: 'tanggal_daftar', label: 'Tanggal' },
+      { key: 'nama', label: 'Nama' },
+      { key: 'prodi', label: 'Prodi' },
+      { key: 'kelas', label: 'Kelas' },
     ];
+    const adminCols = publicCols.concat([
+      { key: 'no_wa', label: 'No WA' },
+      { key: 'alamat', label: 'Alamat' },
+      { key: 'alasan', label: 'Alasan' },
+    ]);
 
-    let isAdmin = false;
-    const ADMIN_PASSWORD = "ipamawell";
+    const cols = isAdmin ? adminCols : publicCols;
 
-    // Initialize
-    document.addEventListener("DOMContentLoaded", async function () {
-      // 1) Render cepat pakai fallback dulu
-      renderTable();
-      updateUIBasedOnRole();
+    // Head
+    thead.innerHTML = cols.map(c => `<th>${escapeHtml(c.label)}</th>`).join('') + (isAdmin ? '<th>Aksi</th>' : '');
 
-      // 2) Lalu coba load dari Spreadsheet (kalau URL sudah diisi)
-      await loadFromSpreadsheet();
+    // Body
+    tbody.innerHTML = rows.map(r => {
+      const tds = cols.map(c => {
+        let v = r[c.key];
+        if (c.key === 'tanggal_daftar') {
+          const s = String(v ?? '');
+          v = s ? s.replace('T', ' ').slice(0, 16) : '';
+        }
+        return `<td>${escapeHtml(v)}</td>`;
+      }).join('');
+
+      const actions = isAdmin ? `
+        <td style="white-space:nowrap;">
+          <button data-act="edit" data-id="${escapeHtml(r.id)}">Edit</button>
+          <button class="danger" data-act="del" data-id="${escapeHtml(r.id)}">Hapus</button>
+        </td>
+      ` : '';
+
+      return `<tr>${tds}${actions}</tr>`;
+    }).join('');
+
+    count.textContent = `Total: ${rows.length} anggota`;
+  }
+
+  function getFilteredMembers() {
+    const q = search.value.trim().toLowerCase();
+    if (!q) return members;
+    return members.filter(m => {
+      const fields = [m.nama, m.prodi, m.kelas].map(x => String(x ?? '').toLowerCase()).join(' ');
+      return fields.includes(q);
     });
+  }
 
-    // Login functionality
-    document.getElementById("loginBtn").addEventListener("click", function () {
-      document.getElementById("loginModal").classList.add("active");
-    });
+  async function refresh() {
+    try {
+      setStatus(listStatus, 'Memuat data...', true);
+      members = await apiGetMembers();
+      renderTable(getFilteredMembers());
+      setStatus(listStatus, '', true);
+    } catch (e) {
+      setStatus(listStatus, 'Error: ' + e.message, false);
+    }
+  }
 
-    document.getElementById("loginForm").addEventListener("submit", function (e) {
-      e.preventDefault();
-      const password = document.getElementById("password").value;
+  // ====== ADMIN LOGIN ======
+  function showAdminLogin() {
+    openModal('Login Admin', `
+      <div class="grid">
+        <div>
+          <label>Password Admin</label>
+          <input id="adminPass" type="password" placeholder="Masukkan password" />
+        </div>
+        <button class="primary" id="doLogin">Login</button>
+        <div class="muted small">Fitur admin: lihat data privat, edit, hapus, export CSV.</div>
+      </div>
+    `);
 
-      if (password === ADMIN_PASSWORD) {
-        isAdmin = true;
-        updateUIBasedOnRole();
-        closeLoginModal();
-        showAlert("Login berhasil! Anda sekarang dapat mengelola data anggota.", "success");
-        document.getElementById("password").value = "";
-      } else {
-        showAlert("Password salah!", "error");
-      }
-    });
-
-    document.getElementById("logoutBtn").addEventListener("click", function () {
-      isAdmin = false;
-      updateUIBasedOnRole();
-      showAlert("Logout berhasil.", "success");
-    });
-
-    // Add member button
-    document.getElementById("addMemberBtn").addEventListener("click", function () {
-      document.getElementById("modalTitle").textContent = "Tambah Anggota Baru";
-      document.getElementById("memberForm").reset();
-      document.getElementById("editIndex").value = "";
-      document.getElementById("memberModal").classList.add("active");
-    });
-
-    // Member form submission
-    document.getElementById("memberForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
-
-      const memberData = {
-        nama: document.getElementById("nama").value,
-        noWa: document.getElementById("noWa").value,
-        prodi: document.getElementById("prodi").value,
-        kelas: document.getElementById("kelas").value,
-        alamat: document.getElementById("alamat").value,
-        alasan: document.getElementById("alasan").value,
-      };
-
-      const editIndex = document.getElementById("editIndex").value;
-
-      if (editIndex === "") {
-        // Add new member
-        members.push(memberData);
-        renderTable();
-        closeMemberModal();
-        showAlert("Anggota baru berhasil ditambahkan!", "success");
-
-        // Sync add
-        await syncToSpreadsheet({ action: "add", payload: memberData });
-      } else {
-        // Edit existing member
+    document.getElementById('doLogin').onclick = async () => {
+      const pass = document.getElementById('adminPass').value.trim();
+      adminPassword = pass;
+      try {
+        await refresh();
         if (!isAdmin) {
-          showAlert("Hanya admin yang dapat mengedit data!", "error");
+          adminPassword = '';
+          updateAdminUI();
+          setStatus(modalStatus, 'Password salah.', false);
           return;
         }
-
-        const idx = parseInt(editIndex, 10);
-        members[idx] = memberData;
-        renderTable();
-        closeMemberModal();
-        showAlert("Data anggota berhasil diperbarui!", "success");
-
-        // Sync edit (kirim index + payload)
-        await syncToSpreadsheet({ action: "edit", index: idx, payload: memberData });
+        closeModal();
+      } catch (e) {
+        adminPassword = '';
+        updateAdminUI();
+        setStatus(modalStatus, 'Error: ' + e.message, false);
       }
-    });
+    };
+  }
 
-    // Export functionality
-    document.getElementById("exportBtn").addEventListener("click", function () {
-      if (!isAdmin) {
-        showAlert("Hanya admin yang dapat export data!", "error");
-        return;
-      }
+  // ====== EDIT MODAL ======
+  function showEditModal(id) {
+    const m = members.find(x => x.id === id);
+    if (!m) return;
 
-      exportToCSV();
-    });
+    openModal('Edit Anggota (Admin)', `
+      <div class="grid">
+        <div class="grid two">
+          <div>
+            <label>Nama</label>
+            <input id="e_nama" value="${escapeHtml(m.nama)}" />
+          </div>
+          <div>
+            <label>No WA</label>
+            <input id="e_no_wa" value="${escapeHtml(m.no_wa)}" />
+          </div>
+        </div>
 
-    // Render table
-    function renderTable() {
-      const tbody = document.getElementById("memberTableBody");
-      tbody.innerHTML = "";
+        <div class="grid two">
+          <div>
+            <label>Prodi</label>
+            <input id="e_prodi" value="${escapeHtml(m.prodi)}" />
+          </div>
+          <div>
+            <label>Kelas</label>
+            <input id="e_kelas" value="${escapeHtml(m.kelas)}" />
+          </div>
+        </div>
 
-      members.forEach((member, index) => {
-        const row = document.createElement("tr");
+        <div>
+          <label>Alamat</label>
+          <input id="e_alamat" value="${escapeHtml(m.alamat)}" />
+        </div>
 
-        row.innerHTML = `
-          <td>${escapeHtml(member.nama)}</td>
-          <td class="admin-only">${escapeHtml(member.noWa)}</td>
-          <td>${escapeHtml(member.prodi)}</td>
-          <td>${escapeHtml(member.kelas)}</td>
-          <td class="admin-only">${escapeHtml(member.alamat)}</td>
-          <td class="admin-only">${escapeHtml(member.alasan)}</td>
-          <td class="admin-only">
-            <div class="actions">
-              <button class="btn btn-secondary btn-sm" onclick="editMember(${index})">Edit</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteMember(${index})">Hapus</button>
-            </div>
-          </td>
-        `;
+        <div>
+          <label>Alasan</label>
+          <textarea id="e_alasan">${escapeHtml(m.alasan)}</textarea>
+        </div>
 
-        tbody.appendChild(row);
-      });
-    }
+        <button class="primary" id="doSave">Simpan</button>
+      </div>
+    `);
 
-    // Edit member
-    function editMember(index) {
-      if (!isAdmin) {
-        showAlert("Hanya admin yang dapat mengedit data!", "error");
-        return;
-      }
-
-      const member = members[index];
-      document.getElementById("modalTitle").textContent = "Edit Data Anggota";
-      document.getElementById("editIndex").value = index;
-      document.getElementById("nama").value = member.nama;
-      document.getElementById("noWa").value = member.noWa;
-      document.getElementById("prodi").value = member.prodi;
-      document.getElementById("kelas").value = member.kelas;
-      document.getElementById("alamat").value = member.alamat;
-      document.getElementById("alasan").value = member.alasan;
-      document.getElementById("memberModal").classList.add("active");
-    }
-
-    // Delete member
-    async function deleteMember(index) {
-      if (!isAdmin) {
-        showAlert("Hanya admin yang dapat menghapus data!", "error");
-        return;
-      }
-
-      if (confirm("Apakah Anda yakin ingin menghapus anggota ini?")) {
-        members.splice(index, 1);
-        renderTable();
-        showAlert("Data anggota berhasil dihapus.", "success");
-
-        // Sync delete (kirim index)
-        await syncToSpreadsheet({ action: "delete", index });
-      }
-    }
-
-    // Update UI based on role
-    function updateUIBasedOnRole() {
-      const body = document.body;
-      const userStatus = document.getElementById("userStatus");
-      const loginBtn = document.getElementById("loginBtn");
-      const logoutBtn = document.getElementById("logoutBtn");
-
-      if (isAdmin) {
-        body.classList.add("admin-view");
-        userStatus.textContent = "Mode: Admin";
-        loginBtn.classList.add("hidden");
-        logoutBtn.classList.remove("hidden");
-      } else {
-        body.classList.remove("admin-view");
-        userStatus.textContent = "Mode: Pengunjung";
-        loginBtn.classList.remove("hidden");
-        logoutBtn.classList.add("hidden");
-      }
-    }
-
-    // Export to CSV
-    function exportToCSV() {
-      const headers = ["Nama", "No WhatsApp", "Prodi", "Kelas", "Alamat", "Alasan Masuk"];
-      const rows = members.map((m) => [m.nama, m.noWa, m.prodi, m.kelas, m.alamat, m.alasan]);
-
-      let csvContent = headers.join(",") + "\n";
-      rows.forEach((row) => {
-        csvContent += row.map((field) => `"${String(field).replace(/"/g, '""')}"`).join(",") + "\n";
-      });
-
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", "data_anggota_" + new Date().getTime() + ".csv");
-      link.style.visibility = "hidden";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      showAlert("Data berhasil di-export!", "success");
-    }
-
-    // =============================
-    // SPREADSHEET SYNC (GET/POST)
-    // =============================
-
-    async function loadFromSpreadsheet() {
-      if (!SCRIPT_URL || SCRIPT_URL.includes("PASTE_URL")) {
-        // URL belum diisi, pakai data fallback
-        return;
-      }
-
+    document.getElementById('doSave').onclick = async () => {
       try {
-        const res = await fetch(SCRIPT_URL, {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-          },
+        setStatus(modalStatus, 'Menyimpan...', true);
+        await apiUpdate(id, {
+          nama: document.getElementById('e_nama').value,
+          no_wa: document.getElementById('e_no_wa').value,
+          prodi: document.getElementById('e_prodi').value,
+          kelas: document.getElementById('e_kelas').value,
+          alamat: document.getElementById('e_alamat').value,
+          alasan: document.getElementById('e_alasan').value,
         });
+        await refresh();
+        closeModal();
+      } catch (e) {
+        setStatus(modalStatus, 'Error: ' + e.message, false);
+      }
+    };
+  }
 
-        if (!res.ok) throw new Error("HTTP " + res.status);
+  // ====== EVENTS ======
+  modalClose.onclick = closeModal;
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
 
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          // Data dari doGet biasanya sudah format objek {nama,noWa,...}
-          members = data.map((x) => ({
-            nama: x.nama || "",
-            noWa: x.noWa || "",
-            prodi: x.prodi || "",
-            kelas: x.kelas || "",
-            alamat: x.alamat || "",
-            alasan: x.alasan || "",
-          }));
-          renderTable();
-          showAlert("Data berhasil dimuat dari Spreadsheet.", "success");
-        }
+  btnAdmin.onclick = showAdminLogin;
+  btnLogout.onclick = () => {
+    adminPassword = '';
+    isAdmin = false;
+    updateAdminUI();
+    refresh();
+  };
+
+  btnRefresh.onclick = refresh;
+
+  search.addEventListener('input', () => {
+    renderTable(getFilteredMembers());
+  });
+
+  regForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (!API_URL || API_URL.includes('PASTE_APPS_SCRIPT_WEB_APP_URL')) {
+      setStatus(regStatus, 'API_URL belum diisi. Paste URL Apps Script dulu.', false);
+      return;
+    }
+
+    const fd = new FormData(regForm);
+    const payload = Object.fromEntries(fd.entries());
+
+    try {
+      setStatus(regStatus, 'Mengirim...', true);
+      document.getElementById('btnSubmit').disabled = true;
+      await apiRegister(payload);
+      regForm.reset();
+      setStatus(regStatus, 'Berhasil daftar. Terima kasih!', true);
+      await refresh();
+    } catch (err) {
+      setStatus(regStatus, 'Error: ' + err.message, false);
+    } finally {
+      document.getElementById('btnSubmit').disabled = false;
+    }
+  });
+
+  tbody.addEventListener('click', async (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const act = btn.getAttribute('data-act');
+    const id = btn.getAttribute('data-id');
+    if (!act || !id) return;
+
+    if (act === 'edit') {
+      showEditModal(id);
+    }
+
+    if (act === 'del') {
+      const ok = confirm('Yakin hapus anggota ini?');
+      if (!ok) return;
+      try {
+        setStatus(listStatus, 'Menghapus...', true);
+        await apiDelete(id);
+        await refresh();
+        setStatus(listStatus, 'Terhapus.', true);
       } catch (err) {
-        console.error("Load error:", err);
-        // Jangan ganggu UX: cukup info ringan
-        showAlert("Gagal memuat dari Spreadsheet. Menggunakan data lokal.", "error");
+        setStatus(listStatus, 'Error: ' + err.message, false);
       }
     }
+  });
 
-    async function syncToSpreadsheet(data) {
-      if (!SCRIPT_URL || SCRIPT_URL.includes("PASTE_URL")) {
-        // URL belum diisi, skip
-        console.log("Spreadsheet sync skipped (SCRIPT_URL belum diisi)", data);
-        return;
-      }
+  btnExport.addEventListener('click', () => {
+    if (!isAdmin) return;
+    const cols = ['tanggal_daftar','nama','no_wa','prodi','kelas','alamat','alasan'];
+    const csv = toCSV(members, cols);
+    const date = new Date();
+    const stamp = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+    download(`ipama-anggota-${stamp}.csv`, csv, 'text/csv');
+  });
 
-      try {
-        // NOTE: kalau Apps Script Anda belum set CORS, pakai mode: 'no-cors'.
-        // Tapi jika mode 'no-cors', browser tidak bisa baca response.
-        // Rekomendasi: set header CORS di Apps Script (lihat catatan di bawah).
-        await fetch(SCRIPT_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
-
-        console.log("Data synced to spreadsheet:", data);
-      } catch (error) {
-        console.error("Sync error:", error);
-        showAlert("Gagal sinkron ke Spreadsheet.", "error");
-      }
-    }
-
-    // Show alert
-    function showAlert(message, type) {
-      const alertContainer = document.getElementById("alertContainer");
-      const alert = document.createElement("div");
-      alert.className = `alert alert-${type}`;
-      alert.textContent = message;
-      alertContainer.appendChild(alert);
-
-      setTimeout(() => {
-        alert.remove();
-      }, 5000);
-    }
-
-    // Close modals
-    function closeLoginModal() {
-      document.getElementById("loginModal").classList.remove("active");
-    }
-
-    function closeMemberModal() {
-      document.getElementById("memberModal").classList.remove("active");
-    }
-
-    // Escape HTML to prevent XSS
-    function escapeHtml(text) {
-      const map = {
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;",
-      };
-      return String(text).replace(/[&<>"']/g, (m) => map[m]);
-    }
-
-    // Close modal when clicking outside
-    window.addEventListener("click", function (event) {
-      if (event.target.classList.contains("modal")) {
-        event.target.classList.remove("active");
-      }
-    });
-  </script>
-
-  <!--
-  CATATAN PENTING (CORS) untuk Apps Script Web App:
-  - Jika fetch POST/GET Anda kena CORS, tambahkan header di Apps Script.
-  - Contoh (di doGet/doPost sebelum return):
-      var output = ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
-      return output;
-    Lalu deploy sebagai Web App: Execute as Me, Who has access Anyone.
-
-  Untuk aksi edit/delete:
-  - Anda perlu update Apps Script agar membaca JSON {action,index,payload}.
-  - Kalau Anda mau, kirim kode Apps Script Anda, nanti saya sesuaikan (tetap sederhana).
-  -->
+  // ====== INIT ======
+  updateAdminUI();
+  refresh();
+</script>
 </body>
 </html>
